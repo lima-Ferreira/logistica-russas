@@ -8,8 +8,17 @@ st.set_page_config(page_title="Logística Russas", page_icon="🚛", layout="cen
 # CSS para remover espaços em branco no topo e deixar visual limpo
 st.markdown("""
     <style>
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
+    /* Esconde o botão de 'Manage App' do Streamlit Cloud */
+    .stAppDeployButton {display:none;}
+    div[data-testid="stStatusWidget"] {display:none;}
+    .viewerBadge_container__1QS1n {display:none !important;}
+    
+    /* Ajustes para mobile */
     .block-container { padding-top: 1rem; padding-bottom: 0rem; }
-    h1 { font-size: 1.8rem !important; margin-bottom: 0.5rem; }
+    h1 { font-size: 1.6rem !important; margin-bottom: 0.5rem; }
     .stTextInput { margin-top: -1rem; }
     </style>
     """, unsafe_allow_html=True)
@@ -67,3 +76,4 @@ else:
     st.warning("⚠️ Aguardando dados da planilha...")
 
 st.caption("v1.0 - Sistema Interno")
+
