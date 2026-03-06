@@ -2,19 +2,19 @@ import streamlit as st
 import pandas as pd
 import unicodedata
 
-# --- CONFIGURAÇÃO DA PÁGINA (Mobile First) ---
-st.set_page_config(page_title="Logística", page_icon="🚛", layout="centered")
+# --- CONFIGURAÇÃO DA PÁGINA (Foco no Mobile) ---
+st.set_page_config(page_title="Logística Russas", page_icon="🚛", layout="centered")
 
-# CSS para compactar o visual no celular
+# CSS para remover espaços em branco no topo e deixar visual limpo
 st.markdown("""
     <style>
-    .main { padding-top: 0rem; }
-    .stTextInput { margin-top: -2rem; }
-    .stAlert { padding: 10px; border-radius: 10px; }
+    .block-container { padding-top: 1rem; padding-bottom: 0rem; }
+    h1 { font-size: 1.8rem !important; margin-bottom: 0.5rem; }
+    .stTextInput { margin-top: -1rem; }
     </style>
-    """, unsafe_allow_status=True)
+    """, unsafe_allow_html=True)
 
-# --- LINK DA PLANILHA ---
+# --- LINK DA PLANILHA (Mantenha o seu link de 'Publicar na Web') ---
 URL_PLANILHA = f"https://docs.google.com/spreadsheets/d/e/2PACX-1vQIcW3eGNnVmZA8TCbXqwrzhFWkMHG2-W-Tc9Aghs4bg9rKXBBdXzhmhoM2U-galWkbaKhw89ZaMomX/pub?output=csv"
 
 def normalizar(texto):
@@ -24,18 +24,20 @@ def normalizar(texto):
 
 @st.cache_data(ttl=60)
 def carregar_dados():
-    try: return pd.read_csv(URL_PLANILHA)
-    except: return pd.DataFrame()
+    try:
+        return pd.read_csv(URL_PLANILHA)
+    except:
+        return pd.DataFrame()
 
 df = carregar_dados()
 
 # --- INTERFACE ENXUTA ---
-st.subheader("🚛 Logística Russas")
+st.title("🚛 Logística Russas")
 
 if not df.empty:
-    # Campo de busca mais discreto
-    busca = st.text_input("", placeholder="🔍 Onde é a entrega?")
-    busca_limpa = normalizar(busca)
+    # Campo de busca com ícone
+    busca_usuario = st.text_input("", placeholder="🔍 Digite o bairro ou sítio...")
+    busca_limpa = normalizar(busca_usuario)
 
     if busca_limpa:
         df_busca = df.copy()
@@ -43,23 +45,25 @@ if not df.empty:
         res = df_busca[df_busca['temp'] == busca_limpa]
         
         if not res.empty:
-            item = res.iloc[0]
-            # Cards coloridos e compactos
-            st.markdown(f"### 📍 {item['Localidade'].upper()}")
+            item = res.iloc[0] # Pega a primeira linha
             
-            # Usando containers para economizar espaço
-            with st.container():
-                st.info(f"**ROTA:** {item['Rota']}")
-                st.success(f"**DIAS:** {item['Dias']}")
+            # Resultado em destaque
+            st.subheader(f"📍 {item['Localidade'].upper()}")
+            
+            # Cards de informação
+            st.info(f"**ROTA:** {item['Rota']}")
+            st.success(f"**ENTREGAS:** {item['Dias']}")
         else:
-            st.error("❌ Não encontrado!")
+            st.error(f"❌ '{busca_usuario}' não encontrado.")
 
-    # Menu de apoio lá embaixo para não atrapalhar
-    with st.expander("📋 Ver Tudo"):
-        st.dataframe(df, hide_index=True)
+    # Menu secundário compacto
+    with st.expander("📋 Ver Tabela Completa"):
+        st.dataframe(df, hide_index=True, use_container_width=True)
     
-    if st.button("🔄 Atualizar"):
+    if st.button("🔄 Atualizar Dados"):
         st.cache_data.clear()
         st.rerun()
 else:
-    st.error("Erro na planilha!")
+    st.warning("⚠️ Aguardando dados da planilha...")
+
+st.caption("v1.0 - Sistema Interno")
