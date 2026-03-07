@@ -68,27 +68,30 @@ with tab2:
     if not df_status.empty:
         st.subheader("🗓️ Cronograma Geral")
         
-        # Função para definir a cor do fundo da célula
-        def colorir_status(val):
-            color = ''
-            if val == 'Confirmado':
-                color = ' color: #155724; font-weight: bold' # Verde
-            elif val == 'Sem Entregas':
-                color = ' color: #721c24; font-weight: bold' # Vermelho
-            elif val == 'Em análise':
-                color = 'color: #856404; font-weight: bold' # Amarelo
-            return color
+        # Criamos uma cópia limpa para exibição
+        df_view = df_status[['Rota', 'Status', 'Próxima Saída']].copy()
 
-        # Aplicando o estilo na tabela
-        df_colorido = df_status[['Rota', 'Status', 'Próxima Saída']].style.applymap(
-            colorir_status, subset=['Status']
+        # Função de Estilo (Compatível com Versões Novas)
+        def style_status(val):
+            if str(val).strip() == 'Confirmado':
+                return ' color: #155724; font-weight: bold;'
+            elif str(val).strip() == 'Sem Entregas':
+                return 'color: #721c24; font-weight: bold;'
+            elif str(val).strip() == 'Em análise':
+                return 'color: #856404; font-weight: bold;'
+            return ''
+
+        # Usando .map (o padrão novo do Pandas/Streamlit)
+        st.dataframe(
+            df_view.style.map(style_status, subset=['Status']),
+            hide_index=True,
+            use_container_width=True
         )
         
-        st.dataframe(df_colorido, hide_index=True, use_container_width=True)
-        
-        st.caption("💡 Dica: O status é atualizado conforme a demanda do dia.")
+        st.caption("💡 Atualizado em tempo real via Google Sheets")
     else:
         st.warning("Aguardando dados da planilha...")
+
 
 
 
