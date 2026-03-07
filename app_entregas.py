@@ -68,34 +68,28 @@ with tab2:
     if not df_status.empty:
         st.subheader("🗓️ Cronograma Geral")
         
-        # Filtramos as colunas para exibição
-        df_exibir = df_status[['Rota', 'Status', 'Próxima Saída']].copy()
-        
-        # Criamos a tabela com configuração de cores
-        st.dataframe(
-            df_exibir,
-            column_config={
-                "Status": st.column_config.SelectboxColumn(
-                    "Status",
-                    help="Status da entrega",
-                    options=["Confirmada", "Sem Entregas", "Em análise"],
-                    required=True,
-                ),
-                "Rota": st.column_config.TextColumn("🚚 Rota"),
-                "Próxima Saída": st.column_config.TextColumn("📅 Saída"),
-            },
-            hide_index=True,
-            use_container_width=True
+        # Função para definir a cor do fundo da célula
+        def colorir_status(val):
+            color = ''
+            if val == 'Confirmado':
+                color = ' color: #155724; font-weight: bold' # Verde
+            elif val == 'Sem Entregas':
+                color = ' color: #721c24; font-weight: bold' # Vermelho
+            elif val == 'Em análise':
+                color = 'color: #856404; font-weight: bold' # Amarelo
+            return color
+
+        # Aplicando o estilo na tabela
+        df_colorido = df_status[['Rota', 'Status', 'Próxima Saída']].style.applymap(
+            colorir_status, subset=['Status']
         )
         
-        # DICA VISUAL: Um resumo rápido abaixo da tabela
-        st.markdown("---")
-        col1, col2, col3 = st.columns(3)
-        with col1: st.success("🟢 Confirmada")
-        with col2: st.error("🔴 Sem Entregas")
-        with col3: st.warning("🟡 Em análise")
+        st.dataframe(df_colorido, hide_index=True, use_container_width=True)
+        
+        st.caption("💡 Dica: O status é atualizado conforme a demanda do dia.")
     else:
         st.warning("Aguardando dados da planilha...")
+
 
 
 
